@@ -16,5 +16,9 @@ deps
 _build/
 _checkouts/
 
-/.idea
-/restboy.iml
+.idea
+restboy.iml
+
+_rel
+.erlang.mk
+restboy.d
