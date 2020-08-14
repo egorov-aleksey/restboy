@@ -7,6 +7,7 @@
 -export([from_json/2, to_json/2]).
 
 init(Req, State) ->
+  logger:notice("~s:~s | http rest api request ~p", [?MODULE, ?FUNCTION_NAME, Req]),
   {cowboy_rest, Req, State}.
 
 allowed_methods(Req, State) ->
@@ -43,4 +44,5 @@ handle_json(#{cmd := <<"stop">>}) ->
   gen_server:cast(restboy_generator, stop),
   #{result => ok};
 handle_json(_Json) ->
+  logger:warning("~s:~s | json \"~p\"", [?MODULE, ?FUNCTION_NAME, _Json]),
   #{error => unexpected}.

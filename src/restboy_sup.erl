@@ -5,6 +5,8 @@
 -export([init/1]).
 
 start_link() ->
+  logger:notice("~s:~s | starts restboy supervisor", [?MODULE, ?FUNCTION_NAME]),
+
   supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 init([]) ->

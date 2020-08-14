@@ -19,6 +19,7 @@
 %% API.
 
 start_link() ->
+  logger:notice("~s:~s | starts prime number generator", [?MODULE, ?FUNCTION_NAME]),
   gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
 %% gen_server.
@@ -33,32 +34,37 @@ init([]) ->
   {ok, State}.
 
 %% Call
-handle_call(state, _From, State) ->
+handle_call(_Request = state, _From, State) ->
+  logger:notice("~s:~s | request \"~p\"", [?MODULE, ?FUNCTION_NAME, _Request]),
   {reply, State, State};
 handle_call(_Request, _From, State) ->
-%%	todo warning
+  logger:warning("~s:~s | request \"~p\"", [?MODULE, ?FUNCTION_NAME, _Request]),
+
   {reply, ignored, State}.
 
 %% Cast
 %% todo prevent run when state is running
-handle_cast(run, State) ->
+handle_cast(_Msg = run, State) ->
+  logger:notice("~s:~s | message \"~p\"", [?MODULE, ?FUNCTION_NAME, _Msg]),
   NewState = State#{
     state => ?STATE_RUNNING
   },
   erlang:send_after(0, self(), next),
   {noreply, NewState};
-handle_cast(stop, State) ->
+handle_cast(_Msg = stop, State) ->
+  logger:notice("~s:~s | message \"~p\"", [?MODULE, ?FUNCTION_NAME, _Msg]),
   NewState = State#{
     state => ?STATE_STOPPED
   },
   {noreply, NewState};
 handle_cast(_Msg, State) ->
+  logger:warning("~s:~s | message \"~p\"", [?MODULE, ?FUNCTION_NAME, _Msg]),
   {noreply, State}.
 
 %% Info
-handle_info(next, #{state := ?STATE_STOPPED} = State) ->
+handle_info(next, State = #{state := ?STATE_STOPPED}) ->
   {noreply, State};
-handle_info(next, #{state := ?STATE_RUNNING} = State) ->
+handle_info(next, State = #{state := ?STATE_RUNNING}) ->
   NextNumber = next_prime(maps:get(number, State)),
   NewCount = maps:get(count, State) + 1,
   NewState = State#{

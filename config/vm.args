@@ -1,3 +1,4 @@
 -name restboy@127.0.0.1
 -setcookie restboy
 -heart
+-kernel logger_level notice
