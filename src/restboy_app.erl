@@ -5,14 +5,20 @@
 -export([stop/1]).
 
 start(_Type, _Args) ->
+  Port = application:get_env(restboy, port, 5000),
+
   Dispatch = cowboy_router:compile([
-    {'_', [{"/", hello_handler, []}]}
+    {'_', [
+      {"/api", restboy_rest_handler, []}
+    ]}
   ]),
+
   {ok, _} = cowboy:start_clear(restboy_http_listener,
-    [{port, 8080}],
+    [{port, Port}],
     #{env => #{dispatch => Dispatch}}
   ),
+
   restboy_sup:start_link().
 
 stop(_State) ->
-  ok.
+  ok = cowboy:stop_listener(restboy_http_listener).

@@ -5,8 +5,26 @@
 -export([init/1]).
 
 start_link() ->
-	supervisor:start_link({local, ?MODULE}, ?MODULE, []).
+  supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 init([]) ->
-	Procs = [],
-	{ok, {{one_for_one, 1, 5}, Procs}}.
+  Flags = #{
+    strategy => one_for_one,
+    intensity => 1,
+    period => 5
+  },
+
+  GeneratorSpec = #{
+    id => restboy_generator,
+    start => {restboy_generator, start_link, []},
+    restart => permanent,
+    shutdown => brutal_kill,
+    type => worker,
+    modules => [restboy_generator]
+  },
+
+  Procs = [
+    GeneratorSpec
+  ],
+
+  {ok, {Flags, Procs}}.
